@@ -4,3 +4,4 @@ bcrypt==5.0.0
 mysql-connector-python==9.6.0
 fpdf==1.7.2
 pillow==11.1.0
+gunicorn==21.2.0
