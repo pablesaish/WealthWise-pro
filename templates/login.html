@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="WealthWise Pro — Secure Login Portal">
+    <title>WealthWise Pro | Login</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="auth-page">
+        <div class="auth-card">
+            <h2>💎 WealthWise Pro</h2>
+            <p class="auth-sub">NEURAL HUB — SECURE ACCESS POINT</p>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            <div class="flash-container">
+                {% for category, message in messages %}
+                <div class="flash-msg flash-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+            {% endif %}
+            {% endwith %}
+
+            {% if mode == 'register' %}
+            <form method="POST" action="{{ url_for('register') }}">
+                <div class="form-group">
+                    <input type="text" name="username" class="form-input" placeholder="Choose Username" required autocomplete="off">
+                </div>
+                <div class="form-group">
+                    <input type="password" name="password" class="form-input" placeholder="Create Password" required>
+                </div>
+                <button type="submit" class="btn btn-blue btn-full" style="margin-top:10px;">REGISTER</button>
+                <a href="{{ url_for('login') }}" class="btn btn-ghost btn-full" style="margin-top:10px;">Back to Login</a>
+            </form>
+            {% else %}
+            <form method="POST" action="{{ url_for('login') }}">
+                <div class="form-group">
+                    <input type="text" name="username" class="form-input" placeholder="Username" required autocomplete="off">
+                </div>
+                <div class="form-group">
+                    <input type="password" name="password" class="form-input" placeholder="Password" required>
+                </div>
+                <button type="submit" class="btn btn-accent btn-full" style="margin-top:10px;">LOGIN</button>
+                <a href="{{ url_for('register') }}" class="btn btn-ghost btn-full" style="margin-top:10px;">Create Account</a>
+            </form>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,357 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+
+{% block head %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="page-terminal">TERMINAL : DASHBOARD_0.1</div>
+    <h1 class="page-title">QUANTUM WEALTH CORE</h1>
+</div>
+
+<!-- STAT CARDS -->
+<div class="stats-grid">
+    <!-- Card 1: System Budget -->
+    <div class="stat-card">
+        <div class="stat-card-glow"></div>
+        <div class="stat-card-body">
+            <div class="stat-card-label">SYSTEM BUDGET</div>
+            <div class="stat-card-value">₹{{ m_limit | int }}</div>
+            <div class="stat-card-sub">Balance: ₹{{ remaining | int }}</div>
+        </div>
+    </div>
+
+    <!-- Card 2: Daily Survival Pulse -->
+    <div class="stat-card">
+        <div class="stat-card-glow {% if is_failing %}red{% endif %}"></div>
+        <div class="stat-card-body">
+            <div class="stat-card-label">DAILY SURVIVAL PULSE</div>
+            {% if is_failing %}
+            <div class="stat-card-value red">HALT SPENDING</div>
+            {% else %}
+            <div class="stat-card-value">₹{{ safe_amt | int }} / DAY</div>
+            {% endif %}
+            <div class="stat-card-sub">Live AI optimization rate</div>
+        </div>
+    </div>
+
+    <!-- Card 3: Resources Depleted -->
+    <div class="stat-card">
+        <div class="stat-card-glow {% if is_failing %}red{% endif %}"></div>
+        <div class="stat-card-body">
+            <div class="stat-card-label">RESOURCES DEPLETED</div>
+            <div class="stat-card-value {% if is_failing %}red{% endif %}">{{ percent_used }}%</div>
+            <div class="stat-card-sub">Usage efficiency {{ 100 - percent_used }}%</div>
+        </div>
+    </div>
+</div>
+
+<!-- ENERGY BAR -->
+<div class="energy-section">
+    <div class="energy-header">
+        <span class="energy-title">MONETARY ENERGY CORE</span>
+        <span class="energy-sub">{{ spent | int }} EXPENDED / {{ remaining | int }} RESERVED</span>
+    </div>
+    <div class="progress-bar-track">
+        <div class="progress-bar-fill {% if is_failing %}red{% endif %}" style="width: {{ percent_used }}%;"></div>
+    </div>
+</div>
+
+<!-- 
+═══════════════════════════════════════════ 
+        SPENDING ANALYTICS CHARTS           
+═══════════════════════════════════════════ 
+<div class="chart-section">
+    <div class="chart-header">
+        <div>
+            <div class="log-label" style="margin-bottom:2px;">SPENDING ANALYTICS ENGINE</div>
+            <span class="energy-title" style="font-size:18px;">Category Breakdown</span>
+        </div>
+        <div class="chart-controls">
+            <div class="chart-toggle" id="viewToggle">
+                <button class="chart-toggle-btn" data-view="weekly" onclick="switchView('weekly')">Weekly</button>
+                <button class="chart-toggle-btn active" data-view="monthly" onclick="switchView('monthly')">Monthly</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="chart-filters" id="categoryFilters">
+        <button class="cat-filter active" data-cat="all" onclick="toggleCategory('all', this)">
+            <span class="cat-dot" style="background:#fff;"></span> ALL
+        </button>
+        <button class="cat-filter active" data-cat="FOOD" onclick="toggleCategory('FOOD', this)">
+            <span class="cat-dot" style="background:#ef4444;"></span> FOOD
+        </button>
+        <button class="cat-filter active" data-cat="TRANSPORT" onclick="toggleCategory('TRANSPORT', this)">
+            <span class="cat-dot" style="background:#3b82f6;"></span> TRANSPORT
+        </button>
+        <button class="cat-filter active" data-cat="BILLS" onclick="toggleCategory('BILLS', this)">
+            <span class="cat-dot" style="background:#f59e0b;"></span> BILLS
+        </button>
+        <button class="cat-filter active" data-cat="FUN" onclick="toggleCategory('FUN', this)">
+            <span class="cat-dot" style="background:#8b5cf6;"></span> FUN
+        </button>
+        <button class="cat-filter active" data-cat="STUDIES" onclick="toggleCategory('STUDIES', this)">
+            <span class="cat-dot" style="background:#10b981;"></span> STUDIES
+        </button>
+        <button class="cat-filter active" data-cat="OTHER" onclick="toggleCategory('OTHER', this)">
+            <span class="cat-dot" style="background:#6b7280;"></span> OTHER
+        </button>
+    </div>
+
+    <div class="chart-grid">
+        <div class="chart-card chart-card-line">
+            <div class="chart-card-title">Spending Trend</div>
+            <div class="chart-canvas-wrap"><canvas id="lineChart"></canvas></div>
+        </div>
+        <div class="chart-card chart-card-pie">
+            <div class="chart-card-title">This Month Split</div>
+            <div class="chart-canvas-wrap"><canvas id="pieChart"></canvas></div>
+        </div>
+    </div>
+</div>
+-->
+
+<!-- RECENT TRANSACTIONS -->
+<div class="log-section" style="margin-top: 28px;">
+    <div class="log-label">Recent Neural Logs [TRANSACTIONS]</div>
+    <div class="log-box">
+        {% if not transactions %}
+        <div class="log-empty">&gt; No data stream detected for current month</div>
+        {% else %}
+            {% for item in transactions %}
+            <div class="log-item">
+                <div class="log-item-left">
+                    <span class="log-icon">{% if item[0] | float < 1000 %}⚡{% else %}☢{% endif %}</span>
+                    <span class="log-category">ENTRY :: {{ item[1] | upper }}</span>
+                </div>
+                <div class="log-item-right">
+                    <span class="log-date">LOG_TIME: {{ item[2] }}</span>
+                    <span class="log-amount {% if item[0] | float < 1000 %}low{% else %}high{% endif %}">(-) ₹{{ item[0] }}</span>
+                </div>
+            </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // ── State ──
+    let currentView = 'monthly';
+    let activeCategories = new Set(['FOOD', 'TRANSPORT', 'BILLS', 'FUN', 'STUDIES', 'OTHER']);
+    let rawData = null;
+    let lineChart = null;
+    let pieChart = null;
+
+    // ── Chart Defaults ──
+    Chart.defaults.color = '#8b949e';
+    Chart.defaults.font.family = "'Inter', 'Arial', sans-serif";
+
+    // ── Init ──
+    fetchChartData();
+
+    function fetchChartData() {
+        fetch(`/api/chart-data?view=${currentView}`, { cache: 'no-store' })
+            .then(r => r.json())
+            .then(data => {
+                rawData = data;
+                renderLineChart(data.bar);
+                renderPieChart(data.pie);
+            })
+            .catch(err => console.error('Chart data error:', err));
+    }
+
+    // ── Line Chart ──
+    function renderLineChart(barData) {
+        const canEl = document.getElementById('lineChart');
+        if (!canEl) return;
+        const ctx = canEl.getContext('2d');
+        if (lineChart) lineChart.destroy();
+
+        const filteredDatasets = barData.datasets
+            .filter(ds => activeCategories.has(ds.label))
+            .map(ds => ({
+                ...ds,
+                fill: true,
+                tension: 0.4,
+                borderWidth: 2.5,
+                pointRadius: 4,
+                pointHoverRadius: 7,
+                pointBackgroundColor: ds.backgroundColor,
+                pointBorderColor: '#0d1117',
+                pointBorderWidth: 2,
+                borderColor: ds.backgroundColor,
+                backgroundColor: ds.backgroundColor + '22'
+            }));
+
+        lineChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: barData.labels,
+                datasets: filteredDatasets
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: {
+                    mode: 'index',
+                    intersect: false
+                },
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'bottom',
+                        labels: {
+                            padding: 15,
+                            usePointStyle: true,
+                            pointStyle: 'circle',
+                            font: { size: 11, weight: 600 }
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: '#0f172a',
+                        titleColor: '#00ff99',
+                        bodyColor: '#e6edf3',
+                        borderColor: '#1e293b',
+                        borderWidth: 1,
+                        padding: 12,
+                        cornerRadius: 8,
+                        callbacks: {
+                            label: ctx => `${ctx.dataset.label}: ₹${ctx.parsed.y.toLocaleString()}`
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { color: 'rgba(30, 41, 59, 0.3)', drawBorder: false },
+                        ticks: { font: { size: 11, weight: 600 } }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: 'rgba(30, 41, 59, 0.3)', drawBorder: false },
+                        ticks: {
+                            font: { size: 11 },
+                            callback: v => '₹' + v.toLocaleString()
+                        }
+                    }
+                },
+                animation: {
+                    duration: 800,
+                    easing: 'easeOutQuart'
+                }
+            }
+        });
+    }
+
+    // ── Pie Chart ──
+    function renderPieChart(pieData) {
+        const canEl = document.getElementById('pieChart');
+        if (!canEl) return;
+        const ctx = canEl.getContext('2d');
+        if (pieChart) pieChart.destroy();
+
+        // Filter by active categories
+        const filtered = { labels: [], data: [], colors: [] };
+        pieData.labels.forEach((label, i) => {
+            if (activeCategories.has(label)) {
+                filtered.labels.push(label);
+                filtered.data.push(pieData.data[i]);
+                filtered.colors.push(pieData.colors[i]);
+            }
+        });
+
+        if (filtered.data.length === 0) {
+            filtered.labels = ['No Data'];
+            filtered.data = [1];
+            filtered.colors = ['#1e293b'];
+        }
+
+        pieChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: filtered.labels,
+                datasets: [{
+                    data: filtered.data,
+                    backgroundColor: filtered.colors,
+                    borderColor: '#0d1117',
+                    borderWidth: 3,
+                    hoverOffset: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '62%',
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        backgroundColor: '#0f172a',
+                        titleColor: '#00ff99',
+                        bodyColor: '#e6edf3',
+                        borderColor: '#1e293b',
+                        borderWidth: 1,
+                        padding: 12,
+                        cornerRadius: 8,
+                        callbacks: {
+                            label: ctx => {
+                                const total = ctx.dataset.data.reduce((a, b) => a + b, 0);
+                                const pct = total > 0 ? ((ctx.parsed / total) * 100).toFixed(1) : 0;
+                                return `${ctx.label}: ₹${ctx.parsed.toLocaleString()} (${pct}%)`;
+                            }
+                        }
+                    }
+                },
+                animation: {
+                    animateRotate: true,
+                    duration: 1000
+                }
+            }
+        });
+    }
+
+    // ── View Toggle ──
+    function switchView(view) {
+        currentView = view;
+        document.querySelectorAll('.chart-toggle-btn').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.view === view);
+        });
+        fetchChartData();
+    }
+
+    // ── Category Filters ──
+    function toggleCategory(cat, btn) {
+        if (cat === 'all') {
+            const allActive = activeCategories.size === 6;
+            if (allActive) {
+                activeCategories.clear();
+                document.querySelectorAll('.cat-filter').forEach(b => b.classList.remove('active'));
+            } else {
+                activeCategories = new Set(['FOOD', 'TRANSPORT', 'BILLS', 'FUN', 'STUDIES', 'OTHER']);
+                document.querySelectorAll('.cat-filter').forEach(b => b.classList.add('active'));
+            }
+        } else {
+            btn.classList.toggle('active');
+            if (activeCategories.has(cat)) {
+                activeCategories.delete(cat);
+            } else {
+                activeCategories.add(cat);
+            }
+            // Update "ALL" button state
+            const allBtn = document.querySelector('.cat-filter[data-cat="all"]');
+            allBtn.classList.toggle('active', activeCategories.size === 6);
+        }
+
+        // Re-render with filtered data
+        if (rawData) {
+            renderLineChart(rawData.bar);
+            renderPieChart(rawData.pie);
+        }
+    }
+</script>
+{% endblock %}

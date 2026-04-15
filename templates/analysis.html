@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block title %}Spending Data{% endblock %}
+
+{% block content %}
+<div class="analysis-header">
+    <div>
+        <div class="page-terminal">TERMINAL : ANALYSIS_0.1</div>
+        <h1 class="page-title" style="font-size:32px;">📊 <span class="page-title-blue">TRANSACTION LEDGER</span></h1>
+    </div>
+    <div class="analysis-actions">
+        <a href="{{ url_for('export_pdf') }}" class="btn btn-accent btn-sm">📄 EXPORT PDF</a>
+    </div>
+</div>
+
+<!-- WEEK TABS -->
+<div class="tabs-container">
+    <div class="tabs-header">
+        <button class="tab-btn active" onclick="switchTab(0)">Week 1 (1-7)</button>
+        <button class="tab-btn" onclick="switchTab(1)">Week 2 (8-14)</button>
+        <button class="tab-btn" onclick="switchTab(2)">Week 3 (15-21)</button>
+        <button class="tab-btn" onclick="switchTab(3)">Week 4 (22-31)</button>
+    </div>
+
+    {% for week_name, rows in weeks %}
+    <div class="tab-panel {% if loop.index0 == 0 %}active{% endif %}" id="tab-{{ loop.index0 }}">
+        {% if rows %}
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Amount</th>
+                    <th>Category</th>
+                    <th>Note</th>
+                    <th>Date</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in rows %}
+                <tr>
+                    <td>{{ row[0] }}</td>
+                    <td>₹{{ row[1] }}</td>
+                    <td>{{ row[2] }}</td>
+                    <td>{{ row[3] }}</td>
+                    <td>{{ row[4] }}</td>
+                    <td>
+                        <form method="POST" action="{{ url_for('delete_expense', expense_id=row[0]) }}" style="display:inline;" onsubmit="return confirm('Permanently remove transaction #{{ row[0] }}?');">
+                            <button type="submit" class="delete-btn">❌ DEL</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="table-empty">&gt; No transactions logged for this phase</div>
+        {% endif %}
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function switchTab(index) {
+        document.querySelectorAll('.tab-btn').forEach((btn, i) => {
+            btn.classList.toggle('active', i === index);
+        });
+        document.querySelectorAll('.tab-panel').forEach((panel, i) => {
+            panel.classList.toggle('active', i === index);
+        });
+    }
+</script>
+{% endblock %}

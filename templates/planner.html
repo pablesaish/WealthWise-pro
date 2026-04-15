@@ -1,0 +1,194 @@
+{% extends "base.html" %}
+{% block title %}Budget Planner{% endblock %}
+
+{% block content %}
+<!-- BUDGET PLANNER SECTION -->
+<div class="planner-section">
+    <div class="page-header" style="text-align:center;">
+        <h1 class="page-title" style="display:inline;">
+            <span style="color: #f59e0b;">⚡ NEURAL</span> PLANNER
+        </h1>
+    </div>
+
+    <div class="planner-input-card">
+        <div class="period-toggle">
+            <input type="radio" name="period" id="daily" value="daily">
+            <label for="daily">Daily</label>
+            <input type="radio" name="period" id="monthly" value="monthly" checked>
+            <label for="monthly">Monthly</label>
+        </div>
+        <br>
+        <input type="number" step="0.01" id="plannerAmount" class="form-input" 
+               placeholder="₹ Amount" style="max-width:250px; margin:0 auto; text-align:center; font-size:18px; font-weight:700;">
+        <br><br>
+        <button class="btn btn-accent" id="generateBtn" onclick="runSimulation()">GENERATE ANALYSIS</button>
+    </div>
+
+    <!-- Results -->
+    <div class="split-results" id="splitResults" style="max-width: 600px; margin: 0 auto;">
+        <div class="split-row">
+            <span class="split-label" style="color: #3b82f6;" id="essLabel">ESSENTIALS: ₹0</span>
+            <div class="split-bar-wrap">
+                <div class="progress-bar-sm">
+                    <div class="progress-bar-fill" id="essBar" style="width:0%; background:#3b82f6;"></div>
+                </div>
+            </div>
+        </div>
+        <div class="split-row">
+            <span class="split-label" style="color: #f59e0b;" id="perLabel">PERSONAL: ₹0</span>
+            <div class="split-bar-wrap">
+                <div class="progress-bar-sm">
+                    <div class="progress-bar-fill" id="perBar" style="width:0%; background:#f59e0b;"></div>
+                </div>
+            </div>
+        </div>
+        <div class="split-row">
+            <span class="split-label" style="color: #10b981;" id="savLabel">SAVINGS: ₹0</span>
+            <div class="split-bar-wrap">
+                <div class="progress-bar-sm">
+                    <div class="progress-bar-fill" id="savBar" style="width:0%; background:#10b981;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<hr style="border-color: var(--border); margin: 40px 0;">
+
+<!-- DIARY SECTION -->
+<div class="planner-section">
+    <div class="diary-header">
+        <span class="diary-title">📓 DAILY JOURNAL</span>
+    </div>
+
+    <div class="diary-nav">
+        <button class="btn btn-sm btn-ghost" onclick="flipPage(-1)">◀ FLIP</button>
+        <span class="diary-page-label" id="pageLabel">PGS 1-2</span>
+        <button class="btn btn-sm btn-ghost" onclick="flipPage(1)">FLIP ▶</button>
+    </div>
+
+    <div class="book-cover">
+        <!-- Left Page -->
+        <div class="diary-page">
+            <div class="page-margin"></div>
+            <div class="diary-page-header">
+                <span class="page-badge">NOTES</span>
+                <span class="page-date-line">Date: .....................</span>
+            </div>
+            <textarea class="diary-textarea" id="leftPage" placeholder="Write your thoughts..." spellcheck="false"></textarea>
+        </div>
+
+        <!-- Spine -->
+        <div class="book-spine"></div>
+
+        <!-- Right Page -->
+        <div class="diary-page">
+            <div class="page-margin"></div>
+            <div class="diary-page-header">
+                <span class="page-badge">NOTES</span>
+                <span class="page-date-line">Date: .....................</span>
+            </div>
+            <textarea class="diary-textarea" id="rightPage" placeholder="Continue writing..." spellcheck="false"></textarea>
+        </div>
+    </div>
+
+    <div style="text-align:center; margin-top:15px;">
+        <button class="btn btn-accent" onclick="saveDiary()">💾 SAVE PAGES</button>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // === Budget Planner Logic ===
+    function runSimulation() {
+        const val = parseFloat(document.getElementById('plannerAmount').value);
+        if (isNaN(val) || val <= 0) return;
+
+        const btn = document.getElementById('generateBtn');
+        btn.textContent = 'ANALYZING...';
+        btn.disabled = true;
+
+        const ess = val * 0.5;
+        const per = val * 0.3;
+        const sav = val * 0.2;
+
+        let step = 0;
+        const total = 20;
+        const interval = setInterval(() => {
+            step++;
+            const r = step / total;
+            
+            document.getElementById('essBar').style.width = (r * 50) + '%';
+            document.getElementById('perBar').style.width = (r * 30 * 3.3) + '%';
+            document.getElementById('savBar').style.width = (r * 20 * 5) + '%';
+            
+            document.getElementById('essLabel').textContent = `ESSENTIALS: ₹${Math.round(ess * r)}`;
+            document.getElementById('perLabel').textContent = `PERSONAL:  ₹${Math.round(per * r)}`;
+            document.getElementById('savLabel').textContent = `SAVINGS:   ₹${Math.round(sav * r)}`;
+
+            if (step >= total) {
+                clearInterval(interval);
+                btn.textContent = 'RE-GENERATE';
+                btn.disabled = false;
+            }
+        }, 25);
+    }
+
+    // === Diary Logic ===
+    let pages = {{ diary_pages | tojson }};
+    let currentSpread = 0;
+    const totalPages = 50;
+
+    function loadSpread() {
+        const p1 = String(currentSpread * 2 + 1);
+        const p2 = String(currentSpread * 2 + 2);
+        document.getElementById('leftPage').value = pages[p1] || '';
+        document.getElementById('rightPage').value = pages[p2] || '';
+        document.getElementById('pageLabel').textContent = `PGS ${p1}-${p2}`;
+    }
+
+    function saveCurrentToMemory() {
+        const p1 = String(currentSpread * 2 + 1);
+        const p2 = String(currentSpread * 2 + 2);
+        pages[p1] = document.getElementById('leftPage').value;
+        pages[p2] = document.getElementById('rightPage').value;
+    }
+
+    function flipPage(dir) {
+        saveCurrentToMemory();
+        const newVal = currentSpread + dir;
+        if (newVal >= 0 && newVal < totalPages / 2) {
+            currentSpread = newVal;
+            loadSpread();
+        }
+    }
+
+    function saveDiary() {
+        saveCurrentToMemory();
+        fetch('{{ url_for("save_planner") }}', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ pages: pages })
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.status === 'ok') {
+                // Quick visual feedback
+                const btn = event.target;
+                const original = btn.textContent;
+                btn.textContent = '✅ SAVED!';
+                btn.style.background = '#10b981';
+                setTimeout(() => {
+                    btn.textContent = original;
+                    btn.style.background = '';
+                }, 1500);
+            }
+        })
+        .catch(err => console.error('Save failed:', err));
+    }
+
+    // Init
+    loadSpread();
+</script>
+{% endblock %}

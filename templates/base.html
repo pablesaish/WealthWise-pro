@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="WealthWise Pro — AI-Powered Personal Finance Dashboard">
+    <title>{% block title %}WealthWise Pro{% endblock %} | NEURAL HUB</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    {% block head %}{% endblock %}
+</head>
+<body>
+    <div class="app-layout">
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <h1>💎 WEALTHWISE</h1>
+            </div>
+
+            <div class="sidebar-monitor">
+                <div class="sidebar-clock" id="liveClock">--:--:--</div>
+                <div class="sidebar-user">LOGGED AS: {{ session.username | upper }}</div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <a href="{{ url_for('dashboard') }}" class="nav-btn {% if active_page == 'dashboard' %}active{% endif %}">
+                    🏠 VIEW DASHBOARD
+                </a>
+                <a href="{{ url_for('planner') }}" class="nav-btn {% if active_page == 'planner' %}active{% endif %}">
+                    📓 PLAN BUDGET
+                </a>
+                <a href="{{ url_for('analysis') }}" class="nav-btn {% if active_page == 'analysis' %}active{% endif %}">
+                    📈 SPENDING DATA
+                </a>
+                <a href="{{ url_for('add_expense') }}" class="nav-btn {% if active_page == 'add' %}active{% endif %}">
+                    ➕ ADD TRANSACTION
+                </a>
+                <a href="{{ url_for('recovery') }}" class="nav-btn {% if active_page == 'recovery' %}active{% endif %}">
+                    🛡️ BUDGET CLINIC
+                </a>
+                <a href="{{ url_for('settings') }}" class="nav-btn {% if active_page == 'settings' %}active{% endif %}">
+                    ⚙️ CHANGE TARGETS
+                </a>
+                <a href="{{ url_for('logout') }}" class="nav-btn nav-btn-exit">
+                    🚪 EXIT HUB
+                </a>
+            </nav>
+        </aside>
+
+        <!-- MAIN -->
+        <main class="main-content">
+            <div class="content-panel">
+                <!-- Flash Messages -->
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                <div class="flash-container">
+                    {% for category, message in messages %}
+                    <div class="flash-msg flash-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                {% endwith %}
+
+                {% block content %}{% endblock %}
+            </div>
+        </main>
+    </div>
+
+    <!-- Live Clock Script -->
+    <script>
+        function updateClock() {
+            const now = new Date();
+            const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+            const d = String(now.getDate()).padStart(2, '0');
+            const m = months[now.getMonth()];
+            const h = String(now.getHours()).padStart(2, '0');
+            const min = String(now.getMinutes()).padStart(2, '0');
+            const s = String(now.getSeconds()).padStart(2, '0');
+            document.getElementById('liveClock').textContent = `${d} ${m} | ${h}:${min}:${s}`;
+        }
+        updateClock();
+        setInterval(updateClock, 1000);
+    </script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

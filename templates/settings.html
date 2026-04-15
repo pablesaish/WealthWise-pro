@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Settings{% endblock %}
+
+{% block content %}
+<div class="page-header" style="text-align:center;">
+    <h1 class="page-title">⚙️ CALIBRATE TARGETS</h1>
+</div>
+
+<div class="settings-card">
+    <form method="POST" action="{{ url_for('settings') }}">
+        <div class="form-group">
+            <label class="form-label" style="text-align:center;">Monthly Budget Target</label>
+            <input type="number" step="0.01" name="monthly" class="form-input" 
+                   placeholder="₹{{ current_monthly }}" value="{{ current_monthly }}">
+        </div>
+
+        <div class="form-group" style="margin-top:20px;">
+            <label class="form-label" style="text-align:center;">Daily Spending Cap</label>
+            <input type="number" step="0.01" name="daily" class="form-input" 
+                   placeholder="₹{{ current_daily }}" value="{{ current_daily }}">
+        </div>
+
+        <button type="submit" class="btn btn-accent btn-full" style="margin-top:30px;">
+            SAVE GOALS
+        </button>
+    </form>
+</div>
+{% endblock %}

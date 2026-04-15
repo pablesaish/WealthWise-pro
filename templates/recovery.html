@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Budget Clinic{% endblock %}
+
+{% block content %}
+<div class="page-header" style="text-align:center;">
+    <h1 class="page-title"><span class="page-title-red">🛡️ YOUR BUDGET HEALTH</span></h1>
+</div>
+
+<div class="recovery-panel {% if not is_over %}safe{% endif %}">
+    {% if is_over %}
+    <div class="recovery-status" style="color: var(--critical);">
+        ⚠️ ALERT: YOU HAVE CROSSED YOUR LIMIT!
+    </div>
+    {% else %}
+    <div class="recovery-status" style="color: var(--accent);">
+        ✅ GREAT: YOU ARE WITHIN BUDGET
+    </div>
+    {% endif %}
+
+    <!-- Progress Bar -->
+    <div class="progress-bar-track" style="border-radius: 10px; height: 20px; margin: 20px auto; max-width: 500px;">
+        <div class="progress-bar-fill {% if is_over %}red{% endif %}" 
+             style="width: {{ progress }}%; border-radius: 10px;"></div>
+    </div>
+
+    <div style="color: var(--text-dim); font-size: 14px; margin-top: 10px;">
+        ₹{{ spent | int }} spent of ₹{{ limit | int }} budget
+    </div>
+
+    {% if is_over %}
+    <div class="recovery-advice">
+        You are ₹{{ debt | int }} over your monthly target.<br>
+        Try spending ₹{{ daily_cut | int }} less each day to catch up!
+    </div>
+    {% else %}
+    <div class="recovery-safe-msg">
+        Your money is safe. Keep following your daily limit!
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
