@@ -55,15 +55,14 @@
         <span class="energy-sub">{{ spent | int }} EXPENDED / {{ remaining | int }} RESERVED</span>
     </div>
     <div class="progress-bar-track">
-        <div class="progress-bar-fill {% if is_failing %}red{% endif %}" style="width: {{ percent_used }}%;"></div>
+        <div class="progress-bar-fill {% if is_failing %}red{% endif %}" style="width: {{ percent_used ~ '%' }};"></div>
     </div>
 </div>
 
-<!-- 
-═══════════════════════════════════════════ 
-        SPENDING ANALYTICS CHARTS           
-═══════════════════════════════════════════ 
-<div class="chart-section">
+<!-- ═══════════════════════════════════════════ -->
+<!--        SPENDING ANALYTICS CHARTS            -->
+<!-- ═══════════════════════════════════════════ -->
+<!-- <div class="chart-section">
     <div class="chart-header">
         <div>
             <div class="log-label" style="margin-bottom:2px;">SPENDING ANALYTICS ENGINE</div>
@@ -111,8 +110,7 @@
             <div class="chart-canvas-wrap"><canvas id="pieChart"></canvas></div>
         </div>
     </div>
-</div>
--->
+</div> -->
 
 <!-- RECENT TRANSACTIONS -->
 <div class="log-section" style="margin-top: 28px;">
