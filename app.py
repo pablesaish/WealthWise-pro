@@ -140,11 +140,22 @@ def dashboard():
 
 
 # ──────────────────────────────────────────────
+#  CACHE CONTROL (PREVENT BACK-BUTTON AFTER LOGOUT)
+# ──────────────────────────────────────────────
+@app.after_request
+def add_header(response):
+    response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, post-check=0, pre-check=0, max-age=0'
+    response.headers['Pragma'] = 'no-cache'
+    response.headers['Expires'] = '-1'
+    return response
+
+
+# ──────────────────────────────────────────────
 #  CHART DATA API
 # ──────────────────────────────────────────────
-@app.route('/api/chart-data')
-@login_required
-def chart_data():
+# @app.route('/api/chart-data')
+# @login_required
+# def chart_data():
     user_id = session['user_id']
     view = request.args.get('view', 'monthly')  # 'weekly' or 'monthly'
     now = datetime.now()
@@ -421,11 +432,15 @@ def export_pdf():
         pdf.ln()
 
         pdf.set_font("Arial", '', 10)
+        
+        def safe_text(t):
+            return str(t).encode('latin-1', 'replace').decode('latin-1')
+
         for r in rows:
-            pdf.cell(30, 10, str(r[0]), 1)
-            pdf.cell(40, 10, str(r[1]), 1)
-            pdf.cell(30, 10, f"Rs.{r[2]}", 1)
-            pdf.cell(90, 10, str(r[3])[:40], 1)
+            pdf.cell(30, 10, safe_text(r[0]), 1)
+            pdf.cell(40, 10, safe_text(r[1]), 1)
+            pdf.cell(30, 10, safe_text(f"Rs.{r[2]}"), 1)
+            pdf.cell(90, 10, safe_text(str(r[3])[:40]), 1)
             pdf.ln()
 
         output_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'My_Wealth_Report.pdf')

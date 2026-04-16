@@ -119,18 +119,19 @@
         {% if not transactions %}
         <div class="log-empty">&gt; No data stream detected for current month</div>
         {% else %}
-            {% for item in transactions %}
-            <div class="log-item">
-                <div class="log-item-left">
-                    <span class="log-icon">{% if item[0] | float < 1000 %}⚡{% else %}☢{% endif %}</span>
-                    <span class="log-category">ENTRY :: {{ item[1] | upper }}</span>
-                </div>
-                <div class="log-item-right">
-                    <span class="log-date">LOG_TIME: {{ item[2] }}</span>
-                    <span class="log-amount {% if item[0] | float < 1000 %}low{% else %}high{% endif %}">(-) ₹{{ item[0] }}</span>
-                </div>
+        {% for item in transactions %}
+        <div class="log-item">
+            <div class="log-item-left">
+                <span class="log-icon">{% if item[0] | float < 1000 %}⚡{% else %}☢{% endif %}</span>
+                        <span class="log-category">ENTRY :: {{ item[1] | upper }}</span>
             </div>
-            {% endfor %}
+            <div class="log-item-right">
+                <span class="log-date">LOG_TIME: {{ item[2] }}</span>
+                <span class="log-amount {% if item[0] | float < 1000 %}low{% else %}high{% endif %}">(-) ₹{{ item[0]
+                    }}</span>
+            </div>
+        </div>
+        {% endfor %}
         {% endif %}
     </div>
 </div>
