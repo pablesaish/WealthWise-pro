@@ -8,4 +8,12 @@ if project_home not in sys.path:
 
 os.chdir(project_home)
 
-from app import app as application
+from app import app
+
+# Gunicorn expects 'app' by default when using `app:app`
+application = app
+
+# Bind to the PORT env var that Render provides
+if __name__ == '__main__':
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port)
