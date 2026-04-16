@@ -4,11 +4,11 @@ from mysql.connector import pooling
 class Database:
     def __init__(self):
         self.config = {
-            "host": "metro.proxy.rlwy.net",
+            "host": "gondola.proxy.rlwy.net",    
             "user": "root",
-            "password": "kctpCPRkEPRAlMekYBSHqhrYNGwCIvAg",
+            "password": "ntRhtswMOObkbTZNHVcPyVLzDLwuEaxj",
             "database": "railway",
-            "port": 32408,
+            "port": 328144,
         }
         try:
             self.pool = pooling.MySQLConnectionPool(
